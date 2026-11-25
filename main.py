@@ -2,7 +2,8 @@
 """Write one original real-life patch note to /output/entry.txt.
 
 The program is deterministic: it always emits the same single patch note,
-the entry itself, into entry.txt under MAKEFUN_OUTPUT_DIR.
+the entry itself, into entry.txt under MAKEFUN_OUTPUT_DIR. The entry is a
+literal constant, so the output is byte-identical on every run.
 """
 
 import os
@@ -14,8 +15,10 @@ ENTRY = (
 
 
 def main() -> None:
-    # Guard: the entry must be a single line under 160 chars before writing.
+    # Guard: the entry must be a single line under 160 chars before writing,
+    # with no leading/trailing whitespace to keep the output byte-stable.
     assert "\n" not in ENTRY, "entry must be a single line"
+    assert ENTRY == ENTRY.strip(), "entry must have no surrounding whitespace"
     assert len(ENTRY) <= 160, f"entry too long: {len(ENTRY)} chars"
     output_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(output_dir, exist_ok=True)
